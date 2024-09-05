@@ -1,0 +1,19 @@
+{
+  "packageRules": [
+    {
+      "managers": ["dockerfile"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
+      "automerge": true,
+      "automergeType": "branch"
+    }
+  ]
+}

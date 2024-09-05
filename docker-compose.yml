@@ -1,0 +1,16 @@
+services:
+  rsas:
+    image: rouhim/rsas
+    build:
+      context: .
+      dockerfile: Containerfile
+    environment:
+      TZ: "Europe/Berlin"
+    volumes:
+      - ./rsas.xml:/etc/rsas/rsas.xml
+    ports:
+      - "9663:8000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
