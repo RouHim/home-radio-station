@@ -1,34 +1,29 @@
 ####################
 #    Run Image     #
 ####################
-FROM docker.io/ubuntu:24.04
-LABEL maintainer="Rouven Himmelstein rouven@himmelstein.info"
-ENV RSAS_URL "https://rocketbroadcaster.com/streaming-audio-server/downloads/ubuntu-24.04/rsas_1.0.5-1_amd64.deb"
+FROM docker.io/alpine:3
 
-## Game server parameter and their defaults
-ENV TZ "UTC"
+# Install liquidsoap using opam
+RUN apk update && apk add git wget curl bash
 
-# Install game server required packages
-RUN apt update &&  \
-    apt upgrade -y && \
-    apt install -y libogg0 adduser openssl && \
-    apt-get clean &&  \
-    rm -rf /var/lib/apt/lists/
+# Install liquidsoap dependencies
+RUN apk update && apk add opam build-base git curl-dev ffmpeg-dev flac-dev libogg-dev linux-headers opus-dev pcre-dev libvorbis-dev pkgconf
 
-# Download and install rsas
-ADD $RSAS_URL /rsas.deb
-RUN dpkg -i /rsas.deb && \
-    rm /rsas.deb
+# Create non root user
+RUN adduser -D radio -u 1000
+RUN addgroup radio radio
+RUN mkdir /radio && chown radio:radio /radio
 
-# Copy default config
-RUN mv /etc/rsas/rsas.xml.example_simple /etc/rsas/rsas.xml
+USER radio
+WORKDIR /radio
 
-RUN chown -R rsas:rsas \
-     /usr/bin/rsas \
-     /etc/rsas \
-     /usr/share/rsas
+RUN opam init --disable-sandboxing --auto-setup --yes
+RUN opam install ffmpeg opus flac ogg cry vorbis liquidsoap --confirm-level=unsafe-yes
 
-USER rsas
+COPY --chmod=755 build-pls.sh build-pls.sh
+COPY --chmod=755 entrypoint.sh entrypoint.sh
+COPY --chmod=755 radio.liq radio.liq
+COPY --chmod=755 error.mp3 error.mp3
 
-# Specify entrypoint
-ENTRYPOINT ["/usr/bin/rsas", "-c", "/etc/rsas/rsas.xml"]
+EXPOSE 8000
+ENTRYPOINT ["/radio/entrypoint.sh"]

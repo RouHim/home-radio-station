@@ -1,15 +1,39 @@
 services:
-  rsas:
-    image: rouhim/rsas
+
+  home-radio-station:
+    image: rouhim/home-radio-station
     build:
       context: .
       dockerfile: Containerfile
     environment:
       TZ: "Europe/Berlin"
     volumes:
-      - ./rsas.xml:/etc/rsas/rsas.xml
+      - ./music:/radio/music
+      - ./jingles:/radio/jingles
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+
+  icecast:
+    image: infiniteproject/icecast
+    environment:
+      ICECAST_SOURCE_PASSWORD: "hackme"
+      ICECAST_ADMIN_PASSWORD: "hackme"
+      ICECAST_RELAY_PASSWORD: "hackme"
+      ICECAST_ADMIN_USERNAME: "admin"
+      ICECAST_ADMIN_EMAIL: "admin@localhost"
+      ICECAST_LOCATION: "Earth"
+      ICECAST_MAX_CLIENTS: "100"
+      ICECAST_MAX_SOURCES: "2"
+      ICECAST_PORT: "8000"
+      ICECAST_PASSWORD: "hackme"
+      ICECAST_HOSTNAME: "localhost"
+      ICECAST_ADMIN: "admin@localhost"
+    expose:
+        - "8000"
     ports:
-      - "9663:8000"
+      - "8000:8000"
     logging:
       driver: "json-file"
       options:
