@@ -9,7 +9,6 @@ set -e
 ./build-pls.sh music/ music.pls
 ./build-pls.sh jingles/ jingles.pls
 
-cat music.pls
-
 # Run the liquidsoap script
-eval $(opam env) && liquidsoap radio.liq
+eval "$(opam env)"
+liquidsoap radio.liq
