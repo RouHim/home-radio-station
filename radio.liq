@@ -1,28 +1,27 @@
-# TODO: anstatt manueles genereiren iner playlist, liquidsoap feature verwenden: https://www.liquidsoap.info/doc-2.2.5/cookbook.html#generating-playlists-from-a-media-library
-
 # Common config
 log.stdout := true
 
 # Music
-music_playlist = playlist("music.pls")
+music = medialib(persistency="/radio/database/music.json", "/radio/music/")
+music_playlist = music.find()
+music_playlist = list.shuffle(music_playlist)
+music_list = playlist.list(music_playlist)
 
 # Jingles
-jingles_playlist = playlist("jingles.pls")
-
-# If something goes wrong, we'll play this
-security = single("error.mp3")
-
-# Start building the feed with music
-radio = music_playlist
+jingles = medialib(persistency="/radio/database/jingles.json", "/radio/jingles/")
+jingles_playlist = jingles.find()
+jingles_playlist = list.shuffle(jingles_playlist)
+jingles_list = playlist.list(jingles_playlist)
 
 # Now add some jingles, 1 in 5 tracks
-radio = random(weights = [1, 4],[jingles_playlist, radio])
+radio = random(weights = [1, 4],[jingles_list, music_list])
 
 # Apply cross fading
 radio = crossfade(duration=5., fade_out=5., fade_in=5., radio)
 
 # And finally the security
-radio = fallback(track_sensitive = false, [radio, security])
+fallback_message = single("error.mp3")
+radio = fallback(track_sensitive = false, [radio, fallback_message])
 
 # Stream it out
 output.icecast(

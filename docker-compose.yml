@@ -7,9 +7,12 @@ services:
       dockerfile: Containerfile
     environment:
       TZ: "Europe/Berlin"
+      UID: "1000"
+      GID: "1000"
     volumes:
-      - ./music:/radio/music
-      - ./jingles:/radio/jingles
+      - ./database:/radio/database
+      - ./music:/radio/music:ro
+      - ./jingles:/radio/jingles:ro
     logging:
       driver: "json-file"
       options:
