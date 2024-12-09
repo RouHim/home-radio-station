@@ -1,7 +1,7 @@
 services:
 
   home-radio-station:
-    image: rouhim/home-radio-station
+    image: docker.io/rouhim/home-radio-station
     build:
       context: .
       dockerfile: Containerfile
