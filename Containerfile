@@ -14,7 +14,8 @@ WORKDIR /radio
 # Copy radio files
 COPY --chmod=755 --chown=1000 entrypoint.sh entrypoint.sh
 COPY --chmod=755 --chown=1000 news.sh news.sh
-COPY --chmod=755 --chown=1000 error.mp3 error.mp3
+COPY --chmod=755 --chown=1000 audio-files/news-into.flac news-into.flac
+COPY --chmod=755 --chown=1000 audio-files/error.mp3 error.mp3
 COPY --chmod=755 --chown=1000 radio.liq radio.liq
 
 EXPOSE 8000

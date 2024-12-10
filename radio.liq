@@ -30,7 +30,7 @@ news_playlist = playlist("news.pls")
 thread.when(predicate.activates({ 59m }), fun() -> process.run("news.sh"))
 thread.when(predicate.activates({ 59m45s }), fun() -> news_playlist.reload())
 # Make a News source that is only active at certain times
-# Hourly news at 06:00-18:00 and 20:00, 16s past the hour
+# Hourly news 16s past the hour
 # to leave room for station announcement
 news = fallback(
   track_sensitive=false,
@@ -44,6 +44,10 @@ news = fallback(
 # When news source becomes active:
 # Skip current track, play news, continue with new track
 radio = fallback.skip(news, fallback=radio)
+
+# TODO: add newshint every hour 00
+news_into = single("news-into.flac")
+radio = add([radio, switch([({0m0s},news_into)])])
 
 # And finally the security
 fallback_message = single("error.mp3")
