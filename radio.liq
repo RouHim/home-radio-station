@@ -37,7 +37,7 @@ news = fallback(
   [
     switch(
       id="news_switch",
-      [(predicate.once({ (15m) and 0m16s }), news_playlist)]
+      [(predicate.once({ (0m) and 0m16s }), news_playlist)]
     )
   ]
 )
