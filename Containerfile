@@ -1,6 +1,10 @@
-FROM docker.io/phasecorex/liquidsoap:latest
+FROM docker.io/rouhim/liquidsoap:latest
 
 USER root
+
+# Install curl, cron and disable package manager
+RUN apt-get update && apt-get install -y curl cron \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create radio working directory
 RUN mkdir /radio && chown 1000:1000 /radio
@@ -9,6 +13,7 @@ WORKDIR /radio
 
 # Copy radio files
 COPY --chmod=755 --chown=1000 entrypoint.sh entrypoint.sh
+COPY --chmod=755 --chown=1000 news.sh news.sh
 COPY --chmod=755 --chown=1000 error.mp3 error.mp3
 COPY --chmod=755 --chown=1000 radio.liq radio.liq
 

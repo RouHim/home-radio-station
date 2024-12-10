@@ -1,4 +1,24 @@
 #!/usr/bin/env bash
+#
+# news.sh - Fetches the latest audio news from Deutschlandfunk
+#
+# This script retrieves the latest audio news broadcast from Deutschlandfunk
+# for the current date and saves the URL to a playlist file.
+#
+# Usage:
+#   ./news.sh
+#
+# Requirements:
+#   - curl: Command-line tool for transferring data with URLs
+#   - grep: Command-line utility for searching plain-text data
+#   - sort: Command-line utility for sorting lines of text files
+#   - date: Command-line utility for displaying or setting the date and time
+#
+# Output:
+#   - Prints the latest MP3 URL to the console
+#   - Writes the latest MP3 URL to the file 'news.pls'
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+set -e
 
 # Set the date for today
 TODAY=$(date +%Y-%m-%d)
@@ -10,10 +30,13 @@ QUERY_URL="https://www.deutschlandfunk.de/suche?drsearch:searchText=&drsearch:fr
 HTML_CONTENT=$(curl -s "$QUERY_URL")
 
 # Extract all MP3 URLs from the HTML content
-MP3_URLS=$(echo "$HTML_CONTENT" | grep -oP 'https://[^"]*\.mp3' | sort -u)
+MP3_URLS=$(echo "$HTML_CONTENT" | grep -oP 'https://download\.deutschlandfunk\.de/file/dradio/\d{4}/\d{2}/\d{2}/nachrichten_dlf_\d{8}_\d{4}_[a-f0-9]{8}\.mp3' | sort -u)
 
-# Get the latest (first) MP3 URL
-LATEST_MP3_URL=$(echo "$MP3_URLS" | head -n 1)
+# Get the latest (last) URL
+LATEST_MP3_URL=$(echo "$MP3_URLS" | tail -n 1)
 
 # Print the latest MP3 URL to the console
 echo "$LATEST_MP3_URL"
+
+# Write url to news.pls file
+echo "$LATEST_MP3_URL" > news.pls

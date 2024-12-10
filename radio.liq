@@ -16,11 +16,34 @@ jingles_playlist = jingles.find()
 jingles_playlist = list.shuffle(jingles_playlist)
 jingles_list = playlist.list(jingles_playlist)
 
-# Now add some jingles, 1 in 5 tracks
+# Mix in some jingles, 1 in 5 tracks
 radio = random(weights = [1, 4],[jingles_list, music_list])
 
 # Apply cross fading
-radio = crossfade(radio)
+radio = crossfade(duration=10.0, fade_out=5.0, fade_in=5.0, radio)
+
+# Add news for every hour
+# https://github.com/savonet/liquidsoap/discussions/4004#discussioncomment-9962939
+news_playlist = playlist("news.pls")
+# Reload the news playlist shortly before playing,
+# to get latest news and not old queued ones
+thread.when(predicate.activates({ 59m }), fun() -> process.run("news.sh"))
+thread.when(predicate.activates({ 59m45s }), fun() -> news_playlist.reload())
+# Make a News source that is only active at certain times
+# Hourly news at 06:00-18:00 and 20:00, 16s past the hour
+# to leave room for station announcement
+news = fallback(
+  track_sensitive=false,
+  [
+    switch(
+      id="news_switch",
+      [(predicate.once({ (15m) and 0m16s }), news_playlist)]
+    )
+  ]
+)
+# When news source becomes active:
+# Skip current track, play news, continue with new track
+radio = fallback.skip(news, fallback=radio)
 
 # And finally the security
 fallback_message = single("error.mp3")
@@ -29,7 +52,7 @@ radio = fallback(track_sensitive = false, [radio, fallback_message])
 # Stream it out
 output.icecast(
   # https://www.liquidsoap.info/doc-2.2.5/encoding_formats.html
-  %vorbis(quality=0.8),
+  %vorbis(quality=0.9),
   host = "icecast",
   port = 8000,
   # TODO: use env var
